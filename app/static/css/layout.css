@@ -1,5 +1,5 @@
 body {
-    background-color: #d6d6d6;
+    background-color: #f4f4f4;
 }
 .ui.sidebar.menu {
     background-color: #448AFF;
@@ -25,7 +25,7 @@ body {
     text-transform: uppercase;
     line-height: 64px;
     height: 64px;
-    font-size: 14px;
+    font-size: 20px;
     border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 
@@ -69,10 +69,13 @@ body {
     padding: 5em 0em;
 }
 
+
 .sticky-content {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 92vh;
+  margin-left: 400px;
+  margin-right: 100px;
 }
 
 .sticky-body { flex: 1; }

@@ -1,0 +1,48 @@
+{% extends 'user/layout_user.html' %}
+{% from 'macros.html' import render_login %}
+
+{% block style %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui teal image header">
+      <div class="content">
+        로그인
+      </div>
+    </h2>
+    <form class="ui large form" method="POST" action="/login">
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            {{ render_login(form.username, placeholder="아이디") }}
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            {{ render_login(form.password, placeholder="비밀번호") }}
+          </div>
+        </div>
+        <input type="submit" class="ui fluid teal submit button large" value="로그인">
+      </div>
+
+      <div class="ui error message"></div>
+
+    </form>
+
+    <div class="ui message">
+      <a href="{{ url_for('register') }}">회원가입</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script src="{{ url_for('static', filename='script/login.js') }}"></script>
+{% endblock %}

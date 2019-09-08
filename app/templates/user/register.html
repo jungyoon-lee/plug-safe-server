@@ -1,0 +1,22 @@
+{% extends 'user/layout_user.html' %}
+{% from 'macros.html' import render_register %}
+
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block body %}
+<div>
+    <h2 class="ui teal image header">
+        회원가입
+    </h2>
+    <div class="ui hidden divider"></div>
+    <form method="POST" action="/register">
+        {{ render_register(form.nickname, placeholder="이름") }}
+        {{ render_register(form.username, placeholder="아이디") }}
+        {{ render_register(form.confirm, placeholder="비밀번호") }}
+        {{ render_register(form.password, placeholder="비밀번호 확인") }}
+        <input type="submit" class="ui fluid teal submit button big" value="다음">
+    </form>
+</div>
+{% endblock %}

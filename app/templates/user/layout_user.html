@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      {% block meta %}
+      {% endblock %}
+      <title>{% block title %}{% endblock %}</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='lib/semantic/dist/semantic.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/layout_user.css') }}">
+      {% block style %}
+      {% endblock %}
+    </head>
+    <body>
+        <div class="ui centered aligned grid">
+          <div class="ui compact segment">
+            {% block body %}
+            {% endblock %}
+          </div>
+        </div>
+        {% block dimmer %}
+        {% endblock %}
+        <script src="{{ url_for('static', filename='lib/requirejs/require.js') }}"></script>
+        {% block script %}
+        {% endblock %}
+    </body>
+</html>

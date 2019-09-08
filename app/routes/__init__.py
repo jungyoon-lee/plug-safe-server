@@ -1,1 +1,1 @@
-from app.routes import glass, user
+from app.routes import device, user

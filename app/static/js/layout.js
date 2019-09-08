@@ -1,6 +1,9 @@
 require(['/static/config.js'], function () {
   require(['jquery', 'semantic'], function ($, Semantic) {
     $('.ui.dropdown').dropdown();
+    $('.ui.modal').modal({
+        blurring: true
+    }).modal('show');
 
     var ua = window.navigator.userAgent;
     var msie = ua.indexOf("MSIE ");
