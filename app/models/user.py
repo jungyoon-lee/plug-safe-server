@@ -12,5 +12,5 @@ class User(db.Model):
     create_date = db.Column(db.DateTime, default=datetime.now)
     modify_date = db.Column(db.DateTime, default=datetime.now)
 
-    sdss = db.relationship('Sds', backref='user', lazy='dynamic')
-    plugs = db.relationship('Plug', backref='user', lazy='dynamic')
+    masters = db.relationship('Master', backref='user', lazy='dynamic')
+    slaves = db.relationship('Slave', backref='user', lazy='dynamic')
