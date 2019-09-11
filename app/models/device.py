@@ -25,6 +25,8 @@ class Master(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
+    serial = db.Column(db.String(20), primary_key=True)
+    ipAddr = db.Column(db.String(20))
     newdata = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now)

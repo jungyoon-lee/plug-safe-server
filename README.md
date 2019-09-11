@@ -4,14 +4,17 @@
 ```buildoutcfg
 1. git에서 뚞딲뚞딲 플라스크를 받아온다.
      $ git clone https://github.com/agurimon/sds-server
-         (만약 안된다면) $ sudo apt-get install git
+         (만약 안된다면) $ sudo apt install git
 
 2. python3, python3-pip, virtualenv을 설치한다.
-     $ sudo install python3, python3-pip, virtualenv
-  
+     $ sudo apt install python3 python3-pip virtualenv
+
+3. mysql-server libmysqlclient-dev
+     $ sudo apt install mysql-server libmysqlclient-dev
+
 3. 프로젝트에 venv(가상환경)을 만든다.
      $ virtualenv venv -p python3
-    
+
 4. venv을 활성화한다.
      $ source ./venv/bin/activate
 
@@ -20,7 +23,8 @@
 
 6. bower(웹 프론트엔드 패키지 관리자) 설치
      $ sudo npm install -g bower
-         (만약 안된다면) $ sudo apt-get install nodejs, npm
+         (만약 안된다면) $ sudo apt install nodejs, npm
+     $ ln -s /usr/bin/nodejs /usr/local/bin/node
 
 7. bower(프론트엔드 패키지 라이브러리 설치
      $ bower install

@@ -30,14 +30,22 @@
   </div>
 </div>
 
-<form action="/master/enroll/check" method="POST">
-    <div class="ui big icon input">
-      <input type="text" name="serial" placeholder="시리얼 번호">
-    </div>
+<div class="ui hidden divider"></div>
 
-    <button type="submit" class="ui active button">
-      <i class="user icon"></i>
-      확인
-    </button>
+<form action="/master/enroll/check" method="POST">
+    <div class="ui text container">
+      <div class="ui segments">
+        <div class="ui segment">
+          <label>시리얼 번호</label>
+          <div class="ui input fluid">
+            <input type="text" name="serial" placeholder="시리얼 번호">
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="ui active button right floated">
+        <i class="user icon"></i>
+        확인
+      </button>
+    </div>
 </form>
 {% endblock %}

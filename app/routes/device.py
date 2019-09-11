@@ -69,6 +69,7 @@ def master_enroll(serial):
         name = request.form['name']
 
         new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr)
+        print(new_master)
         db.session.add(new_master)
         db.session.commit()
 
