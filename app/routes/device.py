@@ -7,14 +7,17 @@ from app.models.device import Master, Slave, temp_master
 from app import app, db
 
 
-# Master 전용 ###############################################################
+############################## Master 전용 ##############################
 
 # Master에서 버튼 누르면 서버의 DB에 등록 시키는 통신
 @app.route('/master/serial', methods=['GET', 'POST'])
 def serial():
     if request.method == 'POST':
-        ipAddr = request.ip
-        serial = request.ip
+        data_string = request.data
+        data_json = json.loads(data_string)
+
+        ipAddr = data_json.ipAddr
+        serial = data_json.serial
 
         masters = Master.query.filter_by(serial=serial).all()
 
@@ -31,32 +34,51 @@ def serial():
     return 'i dont know'
 
 
-# 웹에서 마스터 등록 (master: name, serial)
-@app.route('/master/enroll', methods=['GET', 'POST'])
-def enroll_master():
+############################## Web 전용 ##############################
+
+# 시리얼 확인 하는 구간
+@app.route('/master/enroll/check', methods=['GET', 'POST'])
+def master_enroll_check():
     if request.method == 'POST':
-        name = request.data['name']
-        serial = request.data['serial']
+        serial = request.form['serial']
+
+        error = None
 
         master = temp_master.query.filter_by(serial=serial).first()
 
-        if master is not None:
-            new_master = Master(name=name, serial=serial)
-            db.session.add(new_master)
-            db.session.commit()
+        if master is None:
+            error = '사용 할 수 없는 시리얼 입니다.'
 
-            flash('성공')
-            return redirect(url_for('index'))
+        elif master.auth is True:
+            error = '이미 사용된 시리얼 번호입니다.'
 
-        flash('serial 번호가 없거나 사용 되었습니다.')
-        return redirect(url_for('enroll'))
+        if error is None:
+            return redirect(url_for('master_enroll', serial=master.serial))
 
-    return render_template('master/enroll.html')
+        flash(error)
+
+    return render_template('device/master_enroll_check.html')
 
 
-#
+# 시리얼 확인 후 웹에서 마스터 등록 (master: name, serial)
+@app.route('/master/enroll/<string:serial>', methods=['GET', 'POST'])
+def master_enroll(serial):
+    master = temp_master.query.filter_by(serial=serial).first()
 
-# Web 전용 ##################################################################
+    if request.method == 'POST':
+        name = request.form['name']
+
+        new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr)
+        db.session.add(new_master)
+        db.session.commit()
+
+        flash('성공')
+        return redirect(url_for('index'))
+
+    return render_template('device/master_enroll.html', serial=master.serial, ipAddr=master.ipAddr)
+
+
+####################################################################
 
 # 스디스 생성, 수정
 @app.route('/sds/create', methods=('GET', 'POST'))

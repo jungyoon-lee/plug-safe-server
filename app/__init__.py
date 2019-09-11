@@ -18,7 +18,7 @@ from app.models.user import User
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.filter_by(id=user_id).one()
+    return User.query.filter_by(id=user_id).first()
 
 
 from app import models

@@ -13,8 +13,8 @@ class temp_master(db.Model):
     __tablename__ = "temp_masters"
 
     id = db.Column(db.Integer, primary_key=True)
-    ipAddr= db.Column(db.String(20))
-    name = db.Column(db.String(20))
+    serial = db.Column(db.String(20), primary_key=True)
+    ipAddr = db.Column(db.String(20))
     auth = db.Column(db.Boolean, default=False)
     create_date = db.Column(db.DateTime, default=datetime.now)
     modify_date = db.Column(db.DateTime, default=datetime.now)
