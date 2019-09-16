@@ -1,0 +1,62 @@
+/home/leejung/sds-server/venv/lib/python3.5/site-packages/flask_sqlalchemy/__init__.py:835: FSADeprecationWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True or False to suppress this warning.
+  'SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and '
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Serving Flask app "app" (lazy loading)
+ * Environment: development
+ * Debug mode: on
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+/home/leejung/sds-server/venv/lib/python3.5/site-packages/flask_sqlalchemy/__init__.py:835: FSADeprecationWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True or False to suppress this warning.
+  'SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and '
+ * Tip: There are .env or .flaskenv files present. Do "pip install python-dotenv" to use them.
+ * Debugger is active!
+ * Debugger PIN: 302-503-875
+127.0.0.1 - - [16/Sep/2019 14:59:20] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:20] "GET /static/css/layout.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:20] "GET /static/lib/semantic/dist/semantic.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:20] "GET /static/lib/requirejs/require.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:20] "GET /static/js/layout.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:21] "GET /static/config.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:21] "GET /static/lib/semantic/dist/themes/default/assets/fonts/icons.woff2 HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:21] "GET /static/lib/jquery/dist/jquery.js HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 14:59:21] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 14:59:21] "GET /static/lib/semantic/dist/semantic.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET /static/lib/requirejs/require.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET /static/lib/semantic/dist/semantic.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET /static/css/layout.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:25] "GET /static/js/layout.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:26] "GET /static/lib/semantic/dist/themes/default/assets/fonts/icons.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:26] "GET /static/config.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:26] "GET /static/lib/jquery/dist/jquery.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:26] "GET /static/lib/semantic/dist/semantic.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 14:59:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 15:00:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:00:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:02:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:02:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:02:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:06] "GET /static/lib/semantic/dist/semantic.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:06] "GET /static/js/layout.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:06] "GET /static/css/layout.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:06] "GET /static/lib/requirejs/require.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:07] "GET /static/lib/semantic/dist/themes/default/assets/fonts/icons.woff2 HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:07] "GET /static/config.js HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 15:03:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:09] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:09] "GET /static/script/login.js HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 15:03:09] "GET /static/css/layout_user.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 15:03:09] "GET /static/css/login.css HTTP/1.1" 304 -
+127.0.0.1 - - [16/Sep/2019 15:03:09] "GET /static/script/login.js HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 15:03:10] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:10] "GET /static/css/register.css HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:12] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:13] "GET /static/script/login.js HTTP/1.1" 404 -
+127.0.0.1 - - [16/Sep/2019 15:03:15] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [16/Sep/2019 15:03:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [16/Sep/2019 15:03:18] "GET /master/enroll/check HTTP/1.1" 200 -

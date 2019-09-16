@@ -16,8 +16,11 @@ def serial():
         data_string = request.data
         data_json = json.loads(data_string)
 
-        ipAddr = data_json.ipAddr
+        ipAddr = request.remote_addr
         serial = data_json.serial
+
+        print(ipAddr)
+        print(serial)
 
         masters = Master.query.filter_by(serial=serial).all()
 
@@ -34,7 +37,12 @@ def serial():
     return 'i dont know'
 
 
-############################## Web 전용 ##############################
+############################## Slave 전용 ##############################
+
+# Slave 등록
+
+
+############################## Web 전용 ################################
 
 # 시리얼 확인 하는 구간
 @app.route('/master/enroll/check', methods=['GET', 'POST'])
@@ -69,7 +77,6 @@ def master_enroll(serial):
         name = request.form['name']
 
         new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr)
-        print(new_master)
         db.session.add(new_master)
         db.session.commit()
 
@@ -79,7 +86,10 @@ def master_enroll(serial):
     return render_template('device/master_enroll.html', serial=master.serial, ipAddr=master.ipAddr)
 
 
-####################################################################
+# Slave 등록
+
+
+#######################################################################
 
 # 스디스 생성, 수정
 @app.route('/sds/create', methods=('GET', 'POST'))

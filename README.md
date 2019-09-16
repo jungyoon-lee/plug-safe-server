@@ -1,37 +1,66 @@
 #스마트 경진 대회 스디스 웹 서버
 
-## 구축
+## 구축편
+
+#### Git
 ```buildoutcfg
-1. git에서 뚞딲뚞딲 플라스크를 받아온다.
-     $ git clone https://github.com/agurimon/sds-server
-         (만약 안된다면) $ sudo apt install git
+1. git을 설치한다.
+    $ sudo apt install git
+    
+2. git에서 뚞딲뚞딲 플라스크를 받아온다.
+    $ git clone https://github.com/agurimon/sds-server
+```
 
-2. python3, python3-pip, virtualenv을 설치한다.
-     $ sudo apt install python3 python3-pip virtualenv
+#### Python
+```buildoutcfg
+1. python3, python3-pip을 설치한다.
+    $ sudo apt install python3 python3-pip
+```
 
-3. mysql-server libmysqlclient-dev
-     $ sudo apt install mysql-server libmysqlclient-dev
+#### Mysql
+```buildoutcfg
+1. 컴퓨터에 mysql을 설치한다.
+    $ sudo apt install mysql-server
 
-3. 프로젝트에 venv(가상환경)을 만든다.
-     $ virtualenv venv -p python3
+2. libmysqlclient-dev을 설치한다.
+    $ sudo apt install libmysqlclient-dev
+```
 
-4. venv을 활성화한다.
-     $ source ./venv/bin/activate
+#### Virtualenv
+```buildoutcfg
+1. virtualenv 설치한다.
+    $ sudo apt install virtualenv
 
-5. 라이브러리를 설치한다.
+2. 프로젝트에 venv(가상환경)을 만든다.
+    $ virtualenv venv -p python3
+
+3. venv을 활성화한다.
+    $ source ./venv/bin/activate
+```
+
+#### 라이브러리 설치
+```buildoutcfg
+1. 라이브러리를 설치한다.
      $ pip install -r requirements.txt
+```
 
-6. bower(웹 프론트엔드 패키지 관리자) 설치
-     $ sudo npm install -g bower
-         (만약 안된다면) $ sudo apt install nodejs, npm
-     $ ln -s /usr/bin/nodejs /usr/local/bin/node
+#### bower 설치
+```buildoutcfg
+1. nodejs와 npm 설치
+    $ sudo apt install nodejs npm
 
-7. bower(프론트엔드 패키지 라이브러리 설치
+2. node와 nodejs 연결
+    $ ln -s /usr/bin/nodejs /usr/local/bin/node
+    
+3. bower(웹 프론트엔드 패키지 관리자) 설치
+    $ sudo npm install -g bower
+
+4. bower 라이브러리 설치
      $ bower install
 ```
 
-
-## 실행
+##
+## 실행편
 ```buildoutcfg
 1. venv을 활성화한다.
      $ source ./venv/bin/activate
@@ -47,6 +76,17 @@
      $ python runserver.py
 ```
 
+## Apache
+```buildoutcfg
+1. Apache (httpd) 설치 - 내 웹서버를 전세계에 뿌려줄 모듈
+2. Flask 설치
+3. mod_wsgi 설치 - Apache와 Flask를 연결 시켜줄 모듈
+4. 연결 작업
+5. 확인
+```
+pip install -v mod_wsgi-httpd
+pip install mod_wsgi
+mod_wsgi-express start-server
 ## 오류
 ```buildoutcfg
 
