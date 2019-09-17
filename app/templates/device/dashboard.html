@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/device/dashboard.css') }}">
+{% endblock %}
+
+{% block body %}
+    {% if masters == None %}
+        마스터 없음
+    {% else %}
+        <div class="ui special cards">
+        {% for master in masters %}
+          <div class="card">
+            <div class="blurring dimmable image">
+              <div class="ui dimmer">
+                <div class="content">
+                  <div class="center">
+                    <a class="ui inverted button" href="{{ url_for('slave_enroll', master_id=master.id) }}">
+                        {{ master.id }}
+                        Add Slave
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <img src="{{ url_for('static', filename='image/none.png') }}">
+            </div>
+            <div class="content">
+              <a class="header">{{ master.name }}</a>
+              <div class="meta">
+                <span class="date">Created in {{ master.create_date }}</span>
+              </div>
+            </div>
+            <div class="extra content">
+              <a>
+                <i class="users icon"></i>
+                2 Members
+              </a>
+            </div>
+          </div>
+            {{ master.slavesx }}
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

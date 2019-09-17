@@ -40,6 +40,7 @@ class Slave(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
+    RXAddr = db.Column(db.String(20))
     newdata = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     master_id = db.Column(db.Integer, db.ForeignKey('masters.id'))

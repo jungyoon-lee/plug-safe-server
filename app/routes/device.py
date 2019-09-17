@@ -1,4 +1,5 @@
 import json
+
 from flask import render_template, request, url_for, flash, jsonify, redirect
 from flask_login import current_user
 
@@ -13,16 +14,16 @@ from app import app, db
 @app.route('/master/serial', methods=['GET', 'POST'])
 def serial():
     if request.method == 'POST':
-        data_string = request.data
+        data_bytes = request.data
+        data_string = data_bytes.decode('ASCII')
         data_json = json.loads(data_string)
 
-        ipAddr = request.remote_addr
-        serial = data_json.serial
+        serial = data_json["serial"]
+        ipAddr = data_json["ipAddr"]
 
-        print(ipAddr)
-        print(serial)
+        masters = temp_master.query.filter_by(serial=serial).all()
 
-        masters = Master.query.filter_by(serial=serial).all()
+        error = None
 
         if masters:
             error = '이미 마스터 시리얼 번호가 등록됨'
@@ -37,12 +38,45 @@ def serial():
     return 'i dont know'
 
 
+#
+@app.route('/master/<string:serial>/slaves', methods=['GET', 'POST'])
+def master_slaves(serial):
+    if request.method == 'GET':
+        master = Master.query.filter_by(serial=serial).one()
+        slaves = Slave.query.filter_by(master_id=master.id).all()
+
+        connected = len(slaves)
+        RXAddr = []
+
+        for slave in slaves:
+            RXAddr.append(slave.RXAddr)
+
+        data = {}
+
+        data["connected"] = connected
+        data["RXAddr"] = RXAddr
+
+        return jsonify(data)
+
+
 ############################## Slave 전용 ##############################
 
-# Slave 등록
+#
+
 
 
 ############################## Web 전용 ################################
+
+# 대쉬보드
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    masters = Master.query.all()
+
+    if masters is not None:
+        return render_template('device/dashboard.html', masters=masters)
+
+    return render_template('device/dashboard.html', masters=None)
+
 
 # 시리얼 확인 하는 구간
 @app.route('/master/enroll/check', methods=['GET', 'POST'])
@@ -76,40 +110,40 @@ def master_enroll(serial):
     if request.method == 'POST':
         name = request.form['name']
 
-        new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr)
+        new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr, user_id=current_user.id)
         db.session.add(new_master)
         db.session.commit()
 
         flash('성공')
-        return redirect(url_for('index'))
+        return render_template('device/master_enroll_complete.html')
 
     return render_template('device/master_enroll.html', serial=master.serial, ipAddr=master.ipAddr)
 
 
-# Slave 등록
+# Slave 웹 등록
+@app.route('/master/<string:master_id>/slave/enroll', methods=['GET', 'POST'])
+def slave_enroll(master_id):
+    if request.method == 'POST':
+        RXAddr = request.form['RXAddr']
+        name = request.form['name']
 
+        error = None
+
+        slaves = Slave.query.filter_by(RXAddr=RXAddr).all()
+
+        if slaves is None:
+            error = '이미 사용된 주소입니다.'
+
+        if error is None:
+            slave = Slave(RXAddr=RXAddr, name=name, master_id=master_id, user_id=current_user.id)
+            db.session.add(slave)
+            db.session.commit()
+
+            flash('성공')
+            return render_template('device/slave_enroll_complete.html')
+
+        flash(error)
+
+    return render_template('device/slave_enroll.html', master_id=master_id)
 
 #######################################################################
-
-# 스디스 생성, 수정
-@app.route('/sds/create', methods=('GET', 'POST'))
-def manage_sds():
-    print(str(current_user.id))
-
-    return ''
-
-
-# 플러그 작동
-@app.route('/sds/<string:master_name>/<string:slave_name>/power_on')
-def sds():
-    return 0
-
-
-@app.route('/plug', methods=['GET', 'POST'])
-def plug():
-    form = PlugForm(request.form)
-
-    if request.method == 'POST' and form.validate():
-        return 0
-
-    return render_template('device/plug.html', form=form)

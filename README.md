@@ -31,6 +31,10 @@
 1. virtualenv 설치한다.
     $ sudo apt install virtualenv
 
+
+$ export LC_ALL="en_US.UTF-8"
+$ export LC_CTYPE="en_US.UTF-8"
+
 2. 프로젝트에 venv(가상환경)을 만든다.
     $ virtualenv venv -p python3
 
