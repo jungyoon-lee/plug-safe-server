@@ -2,7 +2,7 @@ body {
     background-color: #f4f4f4;
 }
 .ui.sidebar.menu {
-    background-color: #448AFF;
+    background-color: #00771c;
 }
 .ui.secondary.menu {
     background-color: #FFFFFF;
@@ -73,9 +73,10 @@ body {
 .sticky-content {
   display: flex;
   flex-direction: column;
-  min-height: 92vh;
-  margin-left: 400px;
-  margin-right: 100px;
+  min-height: 90vh;
+  margin-top: 34px;
+  margin-left: 350px;
+  margin-right: 50px;
 }
 
 .sticky-body { flex: 1; }

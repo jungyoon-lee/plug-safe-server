@@ -15,9 +15,8 @@
               <div class="ui dimmer">
                 <div class="content">
                   <div class="center">
-                    <a class="ui inverted button" href="{{ url_for('slave_enroll', master_id=master.id) }}">
-                        {{ master.id }}
-                        Add Slave
+                    <a class="ui inverted button" href="{{ url_for('master_control', master_id=master.id) }}">
+                        슬레이브 정보
                     </a>
                   </div>
                 </div>
@@ -31,10 +30,14 @@
               </div>
             </div>
             <div class="extra content">
-              <a>
-                <i class="users icon"></i>
-                2 Members
-              </a>
+                <a>
+                    <i class="users icon"></i>
+                    2 Members
+                </a>
+                <a href="{{ url_for('slave_enroll', master_id=master.id) }}">
+                    <i class="plus icon"></i>
+                    슬레이브 추가하기
+                </a>
             </div>
           </div>
             {{ master.slavesx }}

@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/device/control.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<h1>{{ master.name }}</h1>
+
+<table class="ui compact celled definition table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>슬레이브 이름</th>
+      <th>현재 상태</th>
+      <th>주소</th>
+      <th>업데이트 일자</th>
+      <th>작동</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for slave in slaves %}
+    <form action="/master/{{master.id}}/slave/{{slave.id}}/control" method="POST">
+        <tr>
+          <td class="collapsing">
+            <div class="ui fitted slider checkbox">
+              {% if slave.state %}
+                <input name="switch" type="checkbox" checked>
+              {% else %}
+                <input name="switch" type="checkbox">
+              {% endif %}
+              <label></label>
+            </div>
+          </td>
+          <td>{{ slave.name }}</td>
+          <td>{{ slave.newdata }}</td>
+          <td>{{ slave.RXAddr }}</td>
+          <td>{{ slave.modify_date }}</td>
+          <td>
+            <button type="submit" class="ui small button">적용</button>
+          </td>
+        </tr>
+    </form>
+    {% endfor %}
+  </tbody>
+  <tfoot class="full-width">
+    <tr>
+      <th></th>
+      <th colspan="5">
+          <a class="ui right floated small primary labeled icon button"
+             href="{{ url_for('slave_enroll', master_id=master.id) }}">
+              <i class="plus icon"></i>
+              슬레이브 추가하기
+          </a>
+          <form action="/master/{{master.id}}/slave/all/off", method="POST">
+              <button type="submit" class="ui negative button">모든 기기 전력 차단</button>
+          </form>
+      </th>
+    </tr>
+  </tfoot>
+</table>
+{% endblock %}

@@ -21,19 +21,19 @@
 ```buildoutcfg
 1. 컴퓨터에 mysql을 설치한다.
     $ sudo apt install mysql-server
-
-2. libmysqlclient-dev을 설치한다.
-    $ sudo apt install libmysqlclient-dev
-```
+    
+    (error) 만약 에러가 난다?
+        $ sudo apt install libmysqlclient-dev build-essential libssl-dev libffi-dev 
+   ```
 
 #### Virtualenv
 ```buildoutcfg
 1. virtualenv 설치한다.
     $ sudo apt install virtualenv
-
-
-$ export LC_ALL="en_US.UTF-8"
-$ export LC_CTYPE="en_US.UTF-8"
+    
+    (error) 만약 에러가 난다?
+        $ export LC_ALL="en_US.UTF-8"
+        $ export LC_CTYPE="en_US.UTF-8"
 
 2. 프로젝트에 venv(가상환경)을 만든다.
     $ virtualenv venv -p python3
@@ -63,7 +63,7 @@ $ export LC_CTYPE="en_US.UTF-8"
      $ bower install
 ```
 
-##
+
 ## 실행편
 ```buildoutcfg
 1. venv을 활성화한다.
@@ -87,10 +87,11 @@ $ export LC_CTYPE="en_US.UTF-8"
 3. mod_wsgi 설치 - Apache와 Flask를 연결 시켜줄 모듈
 4. 연결 작업
 5. 확인
-```
 pip install -v mod_wsgi-httpd
 pip install mod_wsgi
 mod_wsgi-express start-server
+```
+
 ## 오류
 ```buildoutcfg
 

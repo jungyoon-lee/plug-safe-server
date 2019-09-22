@@ -7,6 +7,11 @@ from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
 from app import app, db
 
+def bytes_to_dict(bytes):
+    string = bytes.decode('ASCII')
+    dict = json.loads(string)
+
+    return dict
 
 ############################## Master 전용 ##############################
 
@@ -15,11 +20,10 @@ from app import app, db
 def serial():
     if request.method == 'POST':
         data_bytes = request.data
-        data_string = data_bytes.decode('ASCII')
-        data_json = json.loads(data_string)
+        data_dict = bytes_to_dict(data_bytes)
 
-        serial = data_json["serial"]
-        ipAddr = data_json["ipAddr"]
+        serial = data_dict["serial"]
+        ipAddr = data_dict["ipAddr"]
 
         masters = temp_master.query.filter_by(serial=serial).all()
 
@@ -68,14 +72,49 @@ def master_slaves(serial):
 ############################## Web 전용 ################################
 
 # 대쉬보드
-@app.route('/dashboard', methods=['GET', 'POST'])
-def dashboard():
-    masters = Master.query.all()
+@app.route('/master/dashboard', methods=['GET', 'POST'])
+def master_dashboard():
+    masters = Master.query.filter_by(user_id=current_user.id).all()
 
     if masters is not None:
-        return render_template('device/dashboard.html', masters=masters)
+        return render_template('device/master_dashboard.html', masters=masters)
 
-    return render_template('device/dashboard.html', masters=None)
+    return render_template('device/master_dashboard.html', masters=None)
+
+
+@app.route('/master/<string:master_id>/control')
+def master_control(master_id):
+    master = Master.query.filter_by(id=master_id).first()
+    slaves = Slave.query.filter_by(master_id=master.id).all()
+
+    return render_template('device/master_control.html', master=master, slaves=slaves)
+
+
+@app.route('/master/<string:master_id>/slave/<string:slave_id>/control', methods=['POST'])
+def slave_control(master_id, slave_id):
+    switch = request.form['switch']
+
+    slave = Slave.query.filter_by(id=slave_id).first()
+
+    if switch is 'on':
+        slave.state = 'off'
+    else:
+        slave.state = 'on'
+
+    db.session.commit()
+
+    return redirect(url_for('master_control', master_id=master_id))
+
+
+@app.route('/master/<string:master_id>/slave/all/off', methods=['POST'])
+def slave_all(master_id):
+    slaves = Slave.query.filter_by(master_id=master_id).all()
+
+    for slave in slaves:
+        slave.state = 'off'
+        db.session.commit()
+
+    return redirect(url_for('master_control', master_id=master_id))
 
 
 # 시리얼 확인 하는 구간
