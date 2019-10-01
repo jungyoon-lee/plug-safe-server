@@ -1,6 +1,6 @@
 import json
 
-from flask import render_template, request, url_for, flash, jsonify, redirect
+from flask import render_template, request, url_for, flash, jsonify, redirect, abort
 from flask_login import current_user
 
 from app.forms.device import SdsForm, PlugForm
@@ -14,6 +14,13 @@ def bytes_to_dict(bytes):
     return dict
 
 ############################## Master 전용 ##############################
+
+# DB 바뀐지 체크 후 바뀐다면 전송
+@app.route('/master/change', methods=['GET', 'POST'])
+def change():
+    if request.method == 'POST':
+        pass
+
 
 # Master에서 버튼 누르면 서버의 DB에 등록 시키는 통신
 @app.route('/master/serial', methods=['GET', 'POST'])
@@ -78,7 +85,7 @@ def master_dashboard():
 
     if masters is not None:
         return render_template('device/master_dashboard.html', masters=masters)
-
+        
     return render_template('device/master_dashboard.html', masters=None)
 
 
@@ -90,28 +97,32 @@ def master_control(master_id):
     return render_template('device/master_control.html', master=master, slaves=slaves)
 
 
-@app.route('/master/<string:master_id>/slave/<string:slave_id>/control', methods=['POST'])
-def slave_control(master_id, slave_id):
-    switch = request.form['switch']
-
+# 슬레이브 조
+@app.route('/master/<string:master_id>/slave/<string:slave_id>/control/<string:switch>', methods=['POST'])
+def slave_control(master_id, slave_id, switch):
+    master = Master.query.filter_by(id=master_id).first()
     slave = Slave.query.filter_by(id=slave_id).first()
 
-    if switch is 'on':
-        slave.state = 'off'
+    if switch == 'on':
+        slave.state = slave.newdata = master.newdata = 1
     else:
-        slave.state = 'on'
+        slave.state = 0
+        slave.newdata = master.newdata = 1
 
+    db.session.add(slave)
+    db.session.add(master)
     db.session.commit()
 
     return redirect(url_for('master_control', master_id=master_id))
 
-
+# 마스터에 딸려 있는 슬레이브들 다 끄기
 @app.route('/master/<string:master_id>/slave/all/off', methods=['POST'])
 def slave_all(master_id):
     slaves = Slave.query.filter_by(master_id=master_id).all()
 
     for slave in slaves:
-        slave.state = 'off'
+        slave.state = 0
+        db.session.add(slave)
         db.session.commit()
 
     return redirect(url_for('master_control', master_id=master_id))
@@ -186,3 +197,44 @@ def slave_enroll(master_id):
     return render_template('device/slave_enroll.html', master_id=master_id)
 
 #######################################################################
+
+# 무한 get
+@app.route('/master/<string:master_id>/change/check', methods=['GET', 'POST'])
+def infinity_get(master_id):
+    master = Master.query.filter_by(id=master_id).first()
+    slaves = Slave.query.filter_by(master_id=master_id, newdata=1).all()
+
+    if request.method == 'POST':
+        master.newdata = 0
+
+        for slave in slaves:
+            slave.newdata = 0
+            db.session.add(slave)
+
+        db.session.add(master)
+        db.session.commit()
+
+        return 'change'
+
+    if master.newdata == 0:
+        abort(500)
+
+    newdata = 1
+
+    slaves_name = []
+    changes = 0
+    states = []
+
+    for slave in slaves:
+        slaves_name.append(slave.name)
+        changes += 1
+
+        if slave.state == 1:
+            states.append(1)
+        else:
+            states.append(0)
+
+
+    data = {'newdata': newdata, 'changes': changes, 'slaves_name': slaves_name, 'states': states}
+
+    return data
