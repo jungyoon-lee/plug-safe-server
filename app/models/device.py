@@ -4,7 +4,7 @@ from datetime import datetime
 class Master(db.Model):
     __tablename__ = "masters"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20))
     serial = db.Column(db.String(20), primary_key=True)
     ipAddr = db.Column(db.String(20))
@@ -19,7 +19,7 @@ class Master(db.Model):
 class Slave(db.Model):
     __tablename__ = "slaves"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20))
     RXAddr = db.Column(db.String(20))
     state = db.Column(db.Boolean, default=False)
@@ -41,7 +41,7 @@ class Sds_code(db.Model):
 class temp_master(db.Model):
     __tablename__ = "temp_masters"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     serial = db.Column(db.String(20), primary_key=True)
     ipAddr = db.Column(db.String(20))
     auth = db.Column(db.Boolean, default=False)
