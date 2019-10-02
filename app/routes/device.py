@@ -2,6 +2,7 @@ import json
 
 from flask import render_template, request, url_for, flash, jsonify, redirect, abort
 from flask_login import current_user
+from sqlalchemy.exc import IntegrityError
 
 from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
@@ -42,9 +43,14 @@ def serial():
         if error is None:
             new_master = temp_master(ipAddr=ipAddr, serial=serial)
             db.session.add(new_master)
-            db.session.commit()
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
 
         flash(error)
+        return '성공'
 
     return 'i dont know'
 
