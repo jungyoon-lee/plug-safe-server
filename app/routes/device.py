@@ -167,7 +167,10 @@ def master_enroll(serial):
         name = request.form['name']
 
         new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr, user_id=current_user.id)
+        master.auth = 1
+
         db.session.add(new_master)
+        db.session.add(master)
         db.session.commit()
 
         flash('성공')
@@ -205,10 +208,10 @@ def slave_enroll(master_id):
 #######################################################################
 
 # 무한 get
-@app.route('/master/<int:master_id>/change/check', methods=['GET', 'POST'])
-def infinity_get(master_id):
-    master = Master.query.filter_by(id=master_id).first()
-    slaves = Slave.query.filter_by(master_id=master_id, newdata=1).all()
+@app.route('/master/<string:master_serial>/change/check', methods=['GET', 'POST'])
+def infinity_get(master_serial):
+    master = Master.query.filter_by(serial=master_serial).first()
+    slaves = Slave.query.filter_by(master_id=master.id, newdata=1).all()
 
     if request.method == 'POST':
         master.newdata = 0
