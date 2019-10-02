@@ -95,7 +95,7 @@ def master_dashboard():
     return render_template('device/master_dashboard.html', masters=None)
 
 
-@app.route('/master/<string:master_id>/control')
+@app.route('/master/<int:master_id>/control')
 def master_control(master_id):
     master = Master.query.filter_by(id=master_id).first()
     slaves = Slave.query.filter_by(master_id=master.id).all()
@@ -104,7 +104,7 @@ def master_control(master_id):
 
 
 # 슬레이브 조
-@app.route('/master/<string:master_id>/slave/<string:slave_id>/control/<string:switch>', methods=['POST'])
+@app.route('/master/<int:master_id>/slave/<int:slave_id>/control/<string:switch>', methods=['POST'])
 def slave_control(master_id, slave_id, switch):
     master = Master.query.filter_by(id=master_id).first()
     slave = Slave.query.filter_by(id=slave_id).first()
@@ -122,7 +122,7 @@ def slave_control(master_id, slave_id, switch):
     return redirect(url_for('master_control', master_id=master_id))
 
 # 마스터에 딸려 있는 슬레이브들 다 끄기
-@app.route('/master/<string:master_id>/slave/all/off', methods=['POST'])
+@app.route('/master/<int:master_id>/slave/all/off', methods=['POST'])
 def slave_all(master_id):
     slaves = Slave.query.filter_by(master_id=master_id).all()
 
@@ -177,7 +177,7 @@ def master_enroll(serial):
 
 
 # Slave 웹 등록
-@app.route('/master/<string:master_id>/slave/enroll', methods=['GET', 'POST'])
+@app.route('/master/<int:master_id>/slave/enroll', methods=['GET', 'POST'])
 def slave_enroll(master_id):
     if request.method == 'POST':
         RXAddr = request.form['RXAddr']
@@ -205,7 +205,7 @@ def slave_enroll(master_id):
 #######################################################################
 
 # 무한 get
-@app.route('/master/<string:master_id>/change/check', methods=['GET', 'POST'])
+@app.route('/master/<int:master_id>/change/check', methods=['GET', 'POST'])
 def infinity_get(master_id):
     master = Master.query.filter_by(id=master_id).first()
     slaves = Slave.query.filter_by(master_id=master_id, newdata=1).all()
