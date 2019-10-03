@@ -8,6 +8,9 @@ from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
 from app import app, db
 
+from threading import Thread
+from socket_server import runSocketServer, host
+
 def bytes_to_dict(bytes):
     string = bytes.decode('ASCII')
     dict = json.loads(string)
@@ -15,6 +18,15 @@ def bytes_to_dict(bytes):
     return dict
 
 ############################## Master 전용 ##############################
+
+@app.route('/socket_start')
+def socket_start():
+    socket = Thread(target=runSocketServer, args=(db))
+    socket.daemon = True
+    socket.start()
+
+    return render_template('index.html')
+
 
 # DB 바뀐지 체크 후 바뀐다면 전송
 @app.route('/master/change', methods=['GET', 'POST'])
@@ -78,32 +90,7 @@ def master_slaves(serial):
 
 ############################## Slave 전용 ##############################
 
-#
-
-
-
-############################## Web 전용 ################################
-
-# 대쉬보드
-@app.route('/master/dashboard', methods=['GET', 'POST'])
-def master_dashboard():
-    masters = Master.query.filter_by(user_id=current_user.id).all()
-
-    if masters is not None:
-        return render_template('device/master_dashboard.html', masters=masters)
-        
-    return render_template('device/master_dashboard.html', masters=None)
-
-
-@app.route('/master/<int:master_id>/control')
-def master_control(master_id):
-    master = Master.query.filter_by(id=master_id).first()
-    slaves = Slave.query.filter_by(master_id=master.id).all()
-
-    return render_template('device/master_control.html', master=master, slaves=slaves)
-
-
-# 슬레이브 조
+# 슬레이브 컨트롤
 @app.route('/master/<int:master_id>/slave/<int:slave_id>/control/<string:switch>', methods=['POST'])
 def slave_control(master_id, slave_id, switch):
     master = Master.query.filter_by(id=master_id).first()
@@ -132,6 +119,27 @@ def slave_all(master_id):
         db.session.commit()
 
     return redirect(url_for('master_control', master_id=master_id))
+
+
+############################## Web 전용 ################################
+
+# 대쉬보드
+@app.route('/master/dashboard', methods=['GET', 'POST'])
+def master_dashboard():
+    masters = Master.query.filter_by(user_id=current_user.id).all()
+
+    if masters is not None:
+        return render_template('device/master_dashboard.html', masters=masters)
+        
+    return render_template('device/master_dashboard.html', masters=None)
+
+
+@app.route('/master/<int:master_id>/control')
+def master_control(master_id):
+    master = Master.query.filter_by(id=master_id).first()
+    slaves = Slave.query.filter_by(master_id=master.id).all()
+
+    return render_template('device/master_control.html', master=master, slaves=slaves)
 
 
 # 시리얼 확인 하는 구간
@@ -229,13 +237,12 @@ def infinity_get(master_serial):
         abort(500)
 
     newdata = 1
-
-    slaves_name = []
+    slaves_addr = []
     changes = 0
     states = []
 
     for slave in slaves:
-        slaves_name.append(slave.name)
+        slaves_addr.append(slave.RXAddr)
         changes += 1
 
         if slave.state == 1:
@@ -244,6 +251,6 @@ def infinity_get(master_serial):
             states.append(0)
 
 
-    data = {'newdata': newdata, 'changes': changes, 'slaves_name': slaves_name, 'states': states}
+    data = {'newdata': newdata, 'changes': changes, 'slaves_addr': slaves_addr, 'states': states}
 
     return data

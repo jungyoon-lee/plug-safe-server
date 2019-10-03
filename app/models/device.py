@@ -7,7 +7,7 @@ class Master(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20))
     serial = db.Column(db.String(20), primary_key=True)
-    ipAddr = db.Column(db.String(20))
+    ipAddr = db.Column(db.String(20), primary_key=True)
     newdata = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now)
@@ -21,7 +21,7 @@ class Slave(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20))
-    RXAddr = db.Column(db.String(20))
+    RXAddr = db.Column(db.String(20), primary_key=True)
     state = db.Column(db.Boolean, default=False)
     newdata = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
