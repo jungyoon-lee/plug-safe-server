@@ -9,7 +9,7 @@ from app.models.device import Master, Slave, temp_master
 from app import app, db
 
 from threading import Thread
-from socket_server import runSocketServer, host
+from socket_server import runSocketServer
 
 def bytes_to_dict(bytes):
     string = bytes.decode('ASCII')
@@ -19,9 +19,29 @@ def bytes_to_dict(bytes):
 
 ############################## Master 전용 ##############################
 
+@app.route('/get/<string:master_ipAddr>')
+def get(master_ipAddr):
+    print('접근함')
+    master = Master.query.filter_by(ipAddr=master_ipAddr).first()
+    print(master)
+
+    if master is not None:
+        slaves = Slave.query.filter_by(master_id=master.id).all()
+
+        master.newdata = 0
+        db.session.add(master)
+
+        for slave in slaves:
+            slave.newdata = 0
+            db.session.add(slave)
+
+        db.session.commit()
+
+    return ''
+
 @app.route('/socket_start')
 def socket_start():
-    socket = Thread(target=runSocketServer, args=(db))
+    socket = Thread(target=runSocketServer, args=())
     socket.daemon = True
     socket.start()
 
@@ -107,6 +127,7 @@ def slave_control(master_id, slave_id, switch):
     db.session.commit()
 
     return redirect(url_for('master_control', master_id=master_id))
+
 
 # 마스터에 딸려 있는 슬레이브들 다 끄기
 @app.route('/master/<int:master_id>/slave/all/off', methods=['POST'])
