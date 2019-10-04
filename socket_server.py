@@ -20,7 +20,7 @@ class socketNode:
         self.client_sock = c_sock
         self.client_addr = c_addr
         self.mutex = Lock()
-        self.newData = False
+        self.newData = 0
         self.changes = 0
         self.RXAddr = []
         self.states = []
@@ -30,7 +30,7 @@ class socketNode:
         self.changes = changes
         self.RXAddr = RXAddr_list
         self.states = states_list
-        self.newData = True
+        self.newData = 1
         #self.mutex.release()
 
 
@@ -40,13 +40,16 @@ class socketNode:
         if self.newData:
             data = {'changes': self.changes, 'slaves_addr': self.RXAddr, 'states': self.states}
 
-            # self.client_sock.send(data.encode('utf-8'))
-            sendToMaster(self.client_sock, data)
-            # self.client_sock.send(data.encode('utf-8'))
+            data_json = json.dumps(data).encode('utf-8')
+            self.client_sock.sendall(data_json)
+
+            # sendToMaster(self.client_sock, data)
+
             self.newData = False
             sign = True
-            #self.mutex.release()
-        return sign #전송 됬는지 안됬는지
+        #self.mutex.release()
+
+        return sign # 전송 됬는지 안됬는지
 
 
 def runSocketServer():
@@ -59,8 +62,6 @@ def runSocketServer():
 
         print('서버 열림')
         print('포트 번호 %d 사용 중' % port)
-
-        client_threads = []
 
         db_check_thread = Thread(target=checkChangeMaster, args=())
         db_check_thread.start()
@@ -76,6 +77,7 @@ def runSocketServer():
                 print('등록 되지 않은 주소입니다.')
                 client_socket.send('등록 되지 않은 주소입니다.'.encode('utf-8'))
                 client_socket.close()
+                continue
 
             sockNode_list_mutex.acquire()
             socketNode_list.append(socketNode(client_socket, addr))
@@ -83,13 +85,10 @@ def runSocketServer():
 
             client_thread = Thread(target=clientSocketStart, args=(client_socket, master))
             client_thread.start()
-            client_threads.append(client_thread)
 
     except KeyboardInterrupt:
         print('소켓 서버 종료')
         server_socket.close()
-
-    print('실행이 되다 말았다.')
 
 
 def clientSocketStart(client_socket, master):
@@ -98,7 +97,7 @@ def clientSocketStart(client_socket, master):
 
     for node in socketNode_list:
         if node.client_sock is client_socket:
-            print("search manage node!")
+            print("클라이언트 소켓 리스트랑 스레드에 넣은 쓰레드가 동일하다.")
             manage_socketNode = node
             break
     else: # ecception
@@ -126,7 +125,6 @@ def checkChangeMaster():
         # print("sock list:", socketNode_list)
 
         sockNode_list_mutex.acquire()
-
 
         for master in masters:
             manage_node = None

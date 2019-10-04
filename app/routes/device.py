@@ -142,6 +142,24 @@ def slave_all(master_id):
     return redirect(url_for('master_control', master_id=master_id))
 
 
+@app.route('/master/<int:master_id>/newData/all')
+def newData(master_id):
+    master = Master.query.filter_by(id=master_id).first()
+
+    slaves = Slave.query.filter_by(master_id=master.id).all()
+
+    master.newdata = 0
+    db.session.add(master)
+
+    for slave in slaves:
+        slave.newdata = 0
+        db.session.add(slave)
+
+    db.session.commit()
+
+    return redirect(url_for('master_control', master_id=master_id))
+
+
 ############################## Web 전용 ################################
 
 # 대쉬보드

@@ -49,6 +49,10 @@
           <form action="/master/{{master.id}}/slave/all/off", method="POST">
               <button type="submit" class="ui negative button">모든 기기 전력 차단</button>
           </form>
+
+        <a href="{{ url_for('newData', master_id=master.id) }}">
+            슬레이브 newData
+        </a>
       </th>
     </tr>
   </tfoot>
