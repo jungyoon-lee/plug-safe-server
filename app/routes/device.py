@@ -6,10 +6,14 @@ from sqlalchemy.exc import IntegrityError
 
 from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
-from app import app, db
+from app import app, db, session
 
 from threading import Thread
-from socket_server import runSocketServer
+from socket_server import runSocketServer, myqueue
+
+from queue import Queue
+
+
 
 def bytes_to_dict(bytes):
     string = bytes.decode('ASCII')
@@ -22,8 +26,8 @@ def bytes_to_dict(bytes):
 @app.route('/get/<string:master_ipAddr>')
 def get(master_ipAddr):
     print('접근함')
+
     master = Master.query.filter_by(ipAddr=master_ipAddr).first()
-    print(master)
 
     if master is not None:
         slaves = Slave.query.filter_by(master_id=master.id).all()
@@ -117,14 +121,19 @@ def slave_control(master_id, slave_id, switch):
     slave = Slave.query.filter_by(id=slave_id).first()
 
     if switch == 'on':
-        slave.state = slave.newdata = master.newdata = 1
+        slave.state = 1
+        slave.newdata = 1
+        master.newdata = 1
     else:
         slave.state = 0
-        slave.newdata = master.newdata = 1
+        slave.newdata = 1
+        master.newdata = 1
 
     db.session.add(slave)
     db.session.add(master)
     db.session.commit()
+
+    myqueue.put(object())
 
     return redirect(url_for('master_control', master_id=master_id))
 

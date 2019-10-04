@@ -3,15 +3,19 @@ from socket import *
 from threading import Thread, Lock
 from queue import Queue
 
+import requests
 from app.models.device import temp_master, Master, Slave
-from app import db
+from app import db, session
 
+from queue import Queue
+
+
+myqueue = Queue(10)
 # from app.routes.device import bytes_to_dict
 
 host = '0.0.0.0'
 port = 8081
 address = (host, port)
-
 sockNode_list_mutex = Lock()
 socketNode_list = []
 
@@ -20,17 +24,18 @@ class socketNode:
         self.client_sock = c_sock
         self.client_addr = c_addr
         self.mutex = Lock()
-        self.newData = 0
-        self.changes = 0
+        self.newData = False
+        self.changes = False
         self.RXAddr = []
         self.states = []
 
     def updateSlaveInfo(self, changes, RXAddr_list, states_list):
+        print('updateSlaveInfo')
         #self.mutex.acquire()
         self.changes = changes
         self.RXAddr = RXAddr_list
         self.states = states_list
-        self.newData = 1
+        self.newData = True
         #self.mutex.release()
 
 
@@ -40,6 +45,7 @@ class socketNode:
         if self.newData:
             data = {'changes': self.changes, 'slaves_addr': self.RXAddr, 'states': self.states}
 
+            print(data)
             data_json = json.dumps(data).encode('utf-8')
             self.client_sock.sendall(data_json)
 
@@ -71,7 +77,7 @@ def runSocketServer():
             print(str(addr), '에서 접속되었습니다.')
 
             # master = Master.query.filter_by(ipAddr=str(addr)).first()
-            master = Master.query.filter_by(ipAddr='192.168.0.2').first()
+            master = Master.query.filter_by(ipAddr='192.168.0.14').first()
 
             if master is None:
                 print('등록 되지 않은 주소입니다.')
@@ -103,7 +109,6 @@ def clientSocketStart(client_socket, master):
     else: # ecception
         print('에러남')
 
-
     while True:
         manage_socketNode.mutex.acquire()
 
@@ -115,14 +120,22 @@ def clientSocketStart(client_socket, master):
 
 
 def checkChangeMaster():
-    print('checkChangeMaster 쓰레드 생성 완료')
+    #print('checkChangeMaster 쓰레드 생성 완료')
 
     while True:
-        ###################################################
-        masters = Master.query.filter_by(newdata=1).all()
-        ###################################################
-        # print("masters :", masters)
-        # print("sock list:", socketNode_list)
+        myqueue.get()
+        db_session = session()
+
+        masters = db_session.query(Master).filter(Master.newdata == 1).all()
+
+        for master in masters:
+            slaves = db_session.query(Slave).filter(Slave.master_id == master.id, Slave.newdata == 1).all()
+            for slave in slaves:
+                print(slave, slave.newdata, slave.state)
+
+        print(masters)
+
+        print("sock list:", socketNode_list)
 
         sockNode_list_mutex.acquire()
 
@@ -141,7 +154,8 @@ def checkChangeMaster():
             print('Master의 DB가 바뀜')
 
             manage_node.mutex.acquire()
-            slaves = Slave.query.filter_by(master_id=master.id, newdata=1).all()
+
+            slaves = db_session.query(Slave).filter(Slave.master_id == master.id, Slave.newdata == 1).all()
 
             RXAddr_list = []
             states_list = []
@@ -155,19 +169,15 @@ def checkChangeMaster():
 
             master.newdata = 0
 
-            db.session.add(master)
+            db_session.add(master)
+            db_session.commit()
 
             for slave in slaves:
                 slave.newdata = 0
-                db.session.add(slave)
-
-            db.session.commit()
+                db_session.add(slave)
+                db_session.commit()
 
             manage_node.mutex.release()
 
+        db_session.close()
         sockNode_list_mutex.release()
-
-
-def sendToMaster(client_socket, data):
-    data_json = json.dumps(data).encode('utf-8')
-    client_socket.sendall(data_json)
