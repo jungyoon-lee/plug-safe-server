@@ -62,7 +62,11 @@ def serial():
         data_dict = bytes_to_dict(data_bytes)
 
         serial = data_dict["serial"]
-        ipAddr = data_dict["ipAddr"]
+        #ipAddr = data_dict["ipAddr"]
+
+        ipAddr = request.remote_addr
+        print(ipAddr)
+        print(type(ipAddr))
 
         masters = temp_master.query.filter_by(serial=serial).all()
 
