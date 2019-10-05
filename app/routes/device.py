@@ -18,25 +18,6 @@ def bytes_to_dict(bytes):
 
 ############################## Master 전용 ##############################
 
-@app.route('/get/<string:master_ipAddr>')
-def get(master_ipAddr):
-    print('접근함')
-
-    master = Master.query.filter_by(ipAddr=master_ipAddr).first()
-
-    if master is not None:
-        slaves = Slave.query.filter_by(master_id=master.id).all()
-
-        master.newdata = 0
-        db.session.add(master)
-
-        for slave in slaves:
-            slave.newdata = 0
-            db.session.add(slave)
-
-        db.session.commit()
-
-    return ''
 
 @app.route('/socket_start')
 def socket_start():
@@ -47,28 +28,20 @@ def socket_start():
     return render_template('index.html')
 
 
-# DB 바뀐지 체크 후 바뀐다면 전송
-@app.route('/master/change', methods=['GET', 'POST'])
-def change():
-    if request.method == 'POST':
-        pass
-
-
 # Master에서 버튼 누르면 서버의 DB에 등록 시키는 통신
 @app.route('/master/serial', methods=['GET', 'POST'])
 def serial():
+    db_session = session()
+
     if request.method == 'POST':
         data_bytes = request.data
         data_dict = bytes_to_dict(data_bytes)
 
         serial = data_dict["serial"]
-        #ipAddr = data_dict["ipAddr"]
-
         ipAddr = request.remote_addr
-        print(ipAddr)
-        print(type(ipAddr))
 
-        masters = temp_master.query.filter_by(serial=serial).all()
+        #masters = temp_master.query.filter_by(serial=serial).all()
+        masters = db_session.query(temp_master).filter(temp_master.serial == serial).all()
 
         error = None
 
@@ -77,12 +50,9 @@ def serial():
 
         if error is None:
             new_master = temp_master(ipAddr=ipAddr, serial=serial)
-            db.session.add(new_master)
-
-            try:
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
+            db_session.add(new_master)
+            db_session.commit()
+            db_session.close()
 
         flash(error)
         return '성공'
@@ -116,6 +86,8 @@ def master_slaves(serial):
 # 슬레이브 컨트롤
 @app.route('/master/<int:master_id>/slave/<int:slave_id>/control/<string:switch>', methods=['POST'])
 def slave_control(master_id, slave_id, switch):
+    db_session = session()
+
     master = Master.query.filter_by(id=master_id).first()
     slave = Slave.query.filter_by(id=slave_id).first()
 
@@ -128,9 +100,10 @@ def slave_control(master_id, slave_id, switch):
         slave.newdata = 1
         master.newdata = 1
 
-    db.session.add(slave)
-    db.session.add(master)
-    db.session.commit()
+    db_session.add(master)
+    db_session.add(slave)
+    db_session.commit()
+    db_session.close()
 
     myqueue.put(object())
 
@@ -140,30 +113,41 @@ def slave_control(master_id, slave_id, switch):
 # 마스터에 딸려 있는 슬레이브들 다 끄기
 @app.route('/master/<int:master_id>/slave/all/off', methods=['POST'])
 def slave_all(master_id):
+    db_session = session()
+
+    master = Master.query.filter_by(id=master_id).first()
     slaves = Slave.query.filter_by(master_id=master_id).all()
+
+    master.newdata = 1
+    db_session.add(master)
 
     for slave in slaves:
         slave.state = 0
-        db.session.add(slave)
-        db.session.commit()
+        db_session.add(slave)
+
+    db_session.commit()
+    db.session.close()
 
     return redirect(url_for('master_control', master_id=master_id))
 
 
 @app.route('/master/<int:master_id>/newData/all')
 def newData(master_id):
+    db_session = session()
+
     master = Master.query.filter_by(id=master_id).first()
 
     slaves = Slave.query.filter_by(master_id=master.id).all()
 
     master.newdata = 0
-    db.session.add(master)
+    db_session.add(master)
 
     for slave in slaves:
         slave.newdata = 0
-        db.session.add(slave)
+        db_session.add(slave)
 
-    db.session.commit()
+    db_session.commit()
+    db_session.close()
 
     return redirect(url_for('master_control', master_id=master_id))
 
@@ -216,6 +200,8 @@ def master_enroll_check():
 # 시리얼 확인 후 웹에서 마스터 등록 (master: name, serial)
 @app.route('/master/enroll/<string:serial>', methods=['GET', 'POST'])
 def master_enroll(serial):
+    db_session = session()
+
     master = temp_master.query.filter_by(serial=serial).first()
 
     if request.method == 'POST':
@@ -224,9 +210,10 @@ def master_enroll(serial):
         new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr, user_id=current_user.id)
         master.auth = 1
 
-        db.session.add(new_master)
-        db.session.add(master)
-        db.session.commit()
+        db_session.add(new_master)
+        db_session.add(master)
+        db_session.commit()
+        db_session.close()
 
         flash('성공')
         return render_template('device/master_enroll_complete.html')
@@ -237,6 +224,8 @@ def master_enroll(serial):
 # Slave 웹 등록
 @app.route('/master/<int:master_id>/slave/enroll', methods=['GET', 'POST'])
 def slave_enroll(master_id):
+    db_session = session()
+
     if request.method == 'POST':
         RXAddr = request.form['RXAddr']
         name = request.form['name']
@@ -250,8 +239,9 @@ def slave_enroll(master_id):
 
         if error is None:
             slave = Slave(RXAddr=RXAddr, name=name, master_id=master_id, user_id=current_user.id)
-            db.session.add(slave)
-            db.session.commit()
+            db_session.add(slave)
+            db_session.commit()
+            db_session.close()
 
             flash('성공')
             return render_template('device/slave_enroll_complete.html')
@@ -265,6 +255,8 @@ def slave_enroll(master_id):
 # 무한 get
 @app.route('/master/<string:master_serial>/change/check', methods=['GET', 'POST'])
 def infinity_get(master_serial):
+    db_session = session()
+
     master = Master.query.filter_by(serial=master_serial).first()
     slaves = Slave.query.filter_by(master_id=master.id, newdata=1).all()
 
@@ -273,10 +265,11 @@ def infinity_get(master_serial):
 
         for slave in slaves:
             slave.newdata = 0
-            db.session.add(slave)
+            db_session.add(slave)
 
-        db.session.add(master)
-        db.session.commit()
+        db_session.add(master)
+        db_session.commit()
+        db_session.close()
 
         return 'change'
 
