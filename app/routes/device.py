@@ -1,19 +1,14 @@
 import json
-
 from flask import render_template, request, url_for, flash, jsonify, redirect, abort
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
+from threading import Thread
 
 from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
 from app import app, db, session
 
-from threading import Thread
 from socket_server import runSocketServer, myqueue
-
-from queue import Queue
-
-
 
 def bytes_to_dict(bytes):
     string = bytes.decode('ASCII')

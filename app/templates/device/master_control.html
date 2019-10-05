@@ -28,12 +28,15 @@
           <td>{{ slave.RXAddr }}</td>
           <td>{{ slave.modify_date }}</td>
           <td>
+            {% if (slave.state == 0) %}
             <form action="/master/{{master.id}}/slave/{{slave.id}}/control/on" method="POST">
               <button type="submit" class="positive ui button">켜기</button>
             </form>
+            {% else %}
             <form action="/master/{{master.id}}/slave/{{slave.id}}/control/off" method="POST">
               <button type="submit" class="negative ui button">끄기</button>
             </form>
+            {% endif %}
           </td>
         </tr>
     {% endfor %}
@@ -46,13 +49,9 @@
               <i class="plus icon"></i>
               슬레이브 추가하기
           </a>
-          <form action="/master/{{master.id}}/slave/all/off", method="POST">
+          <form action="/master/{{master.id}}/slave/all/off" method="POST">
               <button type="submit" class="ui negative button">모든 기기 전력 차단</button>
           </form>
-
-        <a href="{{ url_for('newData', master_id=master.id) }}">
-            슬레이브 newData
-        </a>
       </th>
     </tr>
   </tfoot>

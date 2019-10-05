@@ -3,15 +3,10 @@ from socket import *
 from threading import Thread, Lock
 from queue import Queue
 
-import requests
-from app.models.device import temp_master, Master, Slave
-from app import db, session
-
-from queue import Queue
-
+from app.models.device import Master, Slave
+from app import session
 
 myqueue = Queue(10)
-# from app.routes.device import bytes_to_dict
 
 host = '0.0.0.0'
 port = 8081
@@ -31,31 +26,23 @@ class socketNode:
 
     def updateSlaveInfo(self, changes, RXAddr_list, states_list):
         print('updateSlaveInfo')
-        #self.mutex.acquire()
         self.changes = changes
         self.RXAddr = RXAddr_list
         self.states = states_list
         self.newData = True
-        #self.mutex.release()
-
 
     def sendData(self):
         sign = False
-        #self.mutex.acquire()
         if self.newData:
             data = {'changes': self.changes, 'slaves_addr': self.RXAddr, 'states': self.states}
 
             print(data)
             data_json = json.dumps(data).encode('utf-8')
             self.client_sock.sendall(data_json)
-
-            # sendToMaster(self.client_sock, data)
-
             self.newData = False
             sign = True
-        #self.mutex.release()
 
-        return sign # 전송 됬는지 안됬는지
+        return sign
 
 
 def runSocketServer():
@@ -73,17 +60,37 @@ def runSocketServer():
         db_check_thread.start()
 
         while True:
+            db_session = session()
+
             client_socket, addr = server_socket.accept()
             print(str(addr), '에서 접속되었습니다.')
 
-            # master = Master.query.filter_by(ipAddr=str(addr)).first()
-            master = Master.query.filter_by(ipAddr='192.168.0.14').first()
+            print(addr[0])
+            master = db_session.query(Master).filter(Master.ipAddr == str(addr[0])).first()
 
             if master is None:
                 print('등록 되지 않은 주소입니다.')
                 client_socket.send('등록 되지 않은 주소입니다.'.encode('utf-8'))
                 client_socket.close()
+                db_session.close()
                 continue
+
+            flag = False
+            for node in socketNode_list:
+                if node.client_addr[0] is addr[0]:
+                    node.mutex.acquire()
+                    print("기존 노드 소켓 갱신")
+                    node.client_sock.close()
+                    node.client_sock = client_socket
+                    node.client_addr = addr
+                    node.mutex.release()
+                    flag = True
+                    break
+            if flag:
+                db_session.close()
+                continue
+
+
 
             sockNode_list_mutex.acquire()
             socketNode_list.append(socketNode(client_socket, addr))
@@ -91,6 +98,8 @@ def runSocketServer():
 
             client_thread = Thread(target=clientSocketStart, args=(client_socket, master))
             client_thread.start()
+
+            db_session.close()
 
     except KeyboardInterrupt:
         print('소켓 서버 종료')
@@ -103,7 +112,6 @@ def clientSocketStart(client_socket, master):
 
     for node in socketNode_list:
         if node.client_sock is client_socket:
-            print("클라이언트 소켓 리스트랑 스레드에 넣은 쓰레드가 동일하다.")
             manage_socketNode = node
             break
     else: # ecception
@@ -113,7 +121,6 @@ def clientSocketStart(client_socket, master):
         manage_socketNode.mutex.acquire()
 
         if manage_socketNode.newData:
-            print('client: new data 있다.')
             manage_socketNode.sendData()
 
         manage_socketNode.mutex.release()
@@ -133,10 +140,6 @@ def checkChangeMaster():
             for slave in slaves:
                 print(slave, slave.newdata, slave.state)
 
-        print(masters)
-
-        print("sock list:", socketNode_list)
-
         sockNode_list_mutex.acquire()
 
         for master in masters:
@@ -145,13 +148,10 @@ def checkChangeMaster():
                 # print('node.client :', str(node.client_addr[0]), " master.ipAddr :", master.ipAddr)
 
                 if str(node.client_addr[0]) == master.ipAddr:
-                    print('둘이 같음')
                     manage_node = node
                     break
             if manage_node is None:
                 continue
-
-            print('Master의 DB가 바뀜')
 
             manage_node.mutex.acquire()
 

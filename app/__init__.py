@@ -37,6 +37,4 @@ from app.models.device import Master, Slave
 
 @app.route('/')
 def index():
-    db_session = session()
-    master = db_session.query(Master).filter(Master.id == 1).one()
     return render_template('index.html')
