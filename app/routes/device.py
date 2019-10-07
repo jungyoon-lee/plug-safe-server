@@ -3,6 +3,7 @@ from flask import render_template, request, url_for, flash, jsonify, redirect, a
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from threading import Thread
+import time
 
 from app.forms.device import SdsForm, PlugForm
 from app.models.device import Master, Slave, temp_master
@@ -239,6 +240,10 @@ def slave_enroll(master_id):
 
         if error is None:
             slave = Slave(RXAddr=RXAddr, name=name, master_id=master_id, user_id=current_user.id)
+            dir = 'slaves/'
+            name = slave.RXAddr
+            f = open(dir + name, "w")
+            f.close()
             db_session.add(slave)
             db_session.commit()
             db_session.close()
@@ -294,3 +299,34 @@ def infinity_get(master_serial):
     data = {'newdata': newdata, 'changes': changes, 'slaves_addr': slaves_addr, 'states': states}
 
     return data
+
+#######################################################################
+
+# kw 받기
+@app.route('/master/<string:master_serial>/kw', methods=['GET', 'POST'])
+def kw(master_serial):
+    if request.method == 'POST':
+        master = Master.query.filter_by(serial=master_serial).first()
+        slaves = Slave.query.filter_by(master_id=master.id).all()
+
+        data_bytes = request.data
+        data_dict = bytes_to_dict(data_bytes)
+
+        for slave in slaves:
+            dir = 'slaves/'
+            name = slave.RXAddr
+
+            f = open(dir + name, "a")
+
+            now = time.gmtime(time.time())
+
+            data = {"year": now.tm_year, "month": now.tm_mon, "day": now.tm_mday,
+                    "hour": now.tm_hour + 9, "minute": now.tm_min, "second": now.tm_sec,
+                    "slave_RXAddr": slave.RXAddr, "power": data_dict[slave.RXAddr]}
+
+            f.write(str(now.tm_hour+9) + ' ' + str(now.tm_min) + ' ' + str(now.tm_sec) + ' ')
+            f.write(str(data_dict[slave.RXAddr]) + '\n')
+
+            f.close()
+
+        return '성공'

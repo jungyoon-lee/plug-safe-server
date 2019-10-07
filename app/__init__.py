@@ -5,6 +5,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+import numpy as np
+
+from graph import build_graph
 from config import CONNECT_STRING
 
 app = Flask(__name__)
@@ -37,4 +40,36 @@ from app.models.device import Master, Slave
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    f = open("slaves/Sds01", "r")
+    texts = f.readlines()
+    f.close()
+
+    res_text = []
+
+    for text in texts:
+        text = text.replace('\n', '')
+        res_text.append(text)
+
+    temp_text = res_text[10:]
+
+    x = [0, 10, 20, 30, 40, 50, 60]
+    y = []
+
+    for i in temp_text:
+        y.append(int(i[9:]))
+
+    x1 = [0, 1, 2, 3, 4]
+    y1 = [10, 30, 40, 5, 50]
+    x2 = [0, 1, 2, 3, 4]
+    y2 = [50, 30, 20, 10, 50]
+    x3 = [0, 1, 2, 3, 4]
+    y3 = [0, 30, 10, 5, 30]
+
+    graph1_url = build_graph(x1, y1);
+    graph2_url = build_graph(x2, y2);
+    graph3_url = build_graph(x3, y3);
+
+    graph = build_graph(x1, y1)
+
+    return render_template('index.html', graph=graph1_url)
+    # return render_template('index.html')
