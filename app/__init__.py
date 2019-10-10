@@ -74,9 +74,12 @@ def index():
             x = []
             y = []
 
-            for i in text_list:
-                x.append(int(i[4]))
-                y.append(int(i[1]) * 3600 + int(i[2]) * 60 + int(i[3]))
+            for text in text_list[1:]:
+                x.append(int(text[4]))
+                y.append(int(text[1]) * 3600 + int(text[2]) * 60 + int(text[3]))
+
+            print(x)
+            print(y)
 
             graph_url = build_graph(y, x)
             graph_url_list.append(graph_url)
