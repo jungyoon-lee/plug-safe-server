@@ -69,8 +69,8 @@ def runSocketServer():
             master = db_session.query(Master).filter(Master.ipAddr == str(addr[0])).first()
 
             if master is None:
-                print('등록 되지 않은 주소입니다.')
-                client_socket.send('등록 되지 않은 주소입니다.'.encode('utf-8'))
+                # print('등록 되지 않은 주소입니다.')
+                # client_socket.send('등록 되지 않은 주소입니다.'.encode('utf-8'))
                 client_socket.close()
                 db_session.close()
                 continue

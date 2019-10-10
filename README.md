@@ -1,4 +1,14 @@
-#스마트 경진 대회 스디스 웹 서버
+#스마트 경진 대회 플러그 세이프 웹 서버
+
+## library
+
+* flask
+
+* socket
+
+* threading
+
+* matplotlib
 
 ## 구축편
 
@@ -34,6 +44,7 @@
     (error) 만약 에러가 난다?
         $ export LC_ALL="en_US.UTF-8"
         $ export LC_CTYPE="en_US.UTF-8"
+        $ sudo apt install virtualenv
 
 2. 프로젝트에 venv(가상환경)을 만든다.
     $ virtualenv venv -p python3

@@ -6,6 +6,18 @@
 
 {% block body %}
 <div class="pusher">
-    <div><img src="{{ graph }}"></div>
+    <div class="ui three stackable cards">
+      {% for slave in slaves %}
+      <div class="card">
+        <div class="image">
+          <img src="{{ slave.graph_url }}">
+        </div>
+        <div class="content">
+          <a class="header">{{ slave.name }}</a>
+          <a class="header">{{ slave.RXAddr }}</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 </div>
 {% endblock %}

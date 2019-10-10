@@ -5,10 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-import numpy as np
-
 from graph import build_graph
 from config import CONNECT_STRING
+
+import matplotlib.pyplot as plt
+from io import BytesIO, StringIO
 
 app = Flask(__name__)
 
@@ -40,36 +41,51 @@ from app.models.device import Master, Slave
 
 @app.route('/')
 def index():
-    f = open("slaves/Sds01", "r")
-    texts = f.readlines()
-    f.close()
+    masters = Master.query.all()
 
-    res_text = []
+    for master in masters:
+        slaves = Slave.query.filter_by(master_id=master.id).all()
 
-    for text in texts:
-        text = text.replace('\n', '')
-        res_text.append(text)
+        for slave in slaves:
+            graph_url_list = []
+            text = ''
+            route = 'slaves/'
+            slave_RXAddr = slave.RXAddr
+            csv = '.txt'
 
-    temp_text = res_text[10:]
+            route += slave_RXAddr
+            route += csv
 
-    x = [0, 10, 20, 30, 40, 50, 60]
-    y = []
+            f = open(route, "r")
+            texts = f.readlines()
+            f.close()
 
-    for i in temp_text:
-        y.append(int(i[9:]))
+            res_text = []
+            text_list = []
+            # for text in texts:
+            #     text = text.replace('\n', '')
+            #     res_text.append(text)
 
-    x1 = [0, 1, 2, 3, 4]
-    y1 = [10, 30, 40, 5, 50]
-    x2 = [0, 1, 2, 3, 4]
-    y2 = [50, 30, 20, 10, 50]
-    x3 = [0, 1, 2, 3, 4]
-    y3 = [0, 30, 10, 5, 30]
+            for text in texts:
+                text = text.replace('\n', '')
+                text_list.append(text.split('|'))
 
-    graph1_url = build_graph(x1, y1);
-    graph2_url = build_graph(x2, y2);
-    graph3_url = build_graph(x3, y3);
+            # x = KW, y = 시간
+            x = []
+            y = []
 
-    graph = build_graph(x1, y1)
+            for i in text_list:
+                x.append(int(i[4]))
+                y.append(int(i[1]) * 3600 + int(i[2]) * 60 + int(i[3]))
 
-    return render_template('index.html', graph=graph1_url)
+            graph_url = build_graph(y, x)
+            graph_url_list.append(graph_url)
+
+            slave.graph_url = graph_url
+
+    return render_template('index.html', masters=masters, slaves=slaves)
     # return render_template('index.html')
+
+# @app.route('/')
+# def index():
+#     return render_template('index.html')

@@ -1,4 +1,4 @@
-#!/home/leejung/sds-server/venv/bin/python
+#!/home/leejung/smart-safe-server/venv/bin/python
 
 import sys
 import getopt

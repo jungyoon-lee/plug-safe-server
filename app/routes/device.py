@@ -87,8 +87,6 @@ def master_slaves(serial):
 # 슬레이브 컨트롤
 @app.route('/master/<int:master_id>/slave/<int:slave_id>/control/<string:switch>', methods=['POST'])
 def slave_control(master_id, slave_id, switch):
-    db_session = session()
-
     master = Master.query.filter_by(id=master_id).first()
     slave = Slave.query.filter_by(id=slave_id).first()
 
@@ -101,10 +99,9 @@ def slave_control(master_id, slave_id, switch):
         slave.newdata = 1
         master.newdata = 1
 
-    db_session.add(master)
-    db_session.add(slave)
-    db_session.commit()
-    db_session.close()
+    db.session.add(master)
+    db.session.add(slave)
+    db.session.commit()
 
     myqueue.put(object())
 
@@ -114,20 +111,17 @@ def slave_control(master_id, slave_id, switch):
 # 마스터에 딸려 있는 슬레이브들 다 끄기
 @app.route('/master/<int:master_id>/slave/all/off', methods=['POST'])
 def slave_all(master_id):
-    db_session = session()
-
     master = Master.query.filter_by(id=master_id).first()
     slaves = Slave.query.filter_by(master_id=master_id).all()
 
     master.newdata = 1
-    db_session.add(master)
+    db.session.add(master)
 
     for slave in slaves:
         slave.state = 0
-        db_session.add(slave)
+        db.session.add(slave)
 
-    db_session.commit()
-    db.session.close()
+    db.session.commit()
 
     return redirect(url_for('master_control', master_id=master_id))
 
@@ -201,8 +195,6 @@ def master_enroll_check():
 # 시리얼 확인 후 웹에서 마스터 등록 (master: name, serial)
 @app.route('/master/enroll/<string:serial>', methods=['GET', 'POST'])
 def master_enroll(serial):
-    db_session = session()
-
     master = temp_master.query.filter_by(serial=serial).first()
 
     if request.method == 'POST':
@@ -211,10 +203,9 @@ def master_enroll(serial):
         new_master = Master(name=name, serial=master.serial, ipAddr=master.ipAddr, user_id=current_user.id)
         master.auth = 1
 
-        db_session.add(new_master)
-        db_session.add(master)
-        db_session.commit()
-        db_session.close()
+        db.session.add(new_master)
+        db.session.add(master)
+        db.session.commit()
 
         flash('성공')
         return render_template('device/master_enroll_complete.html')
@@ -242,7 +233,13 @@ def slave_enroll(master_id):
             slave = Slave(RXAddr=RXAddr, name=name, master_id=master_id, user_id=current_user.id)
             dir = 'slaves/'
             name = slave.RXAddr
-            f = open(dir + name, "w")
+            csv = '.txt'
+
+            dir += name
+            dir += csv
+
+            f = open(dir, "w")
+            f.write('date|' + 'hour|' + 'minute|' + 'second|' + 'kw' + '\n')
             f.close()
             db_session.add(slave)
             db_session.commit()
@@ -315,8 +312,12 @@ def kw(master_serial):
         for slave in slaves:
             dir = 'slaves/'
             name = slave.RXAddr
+            csv = '.txt'
 
-            f = open(dir + name, "a")
+            dir += name
+            dir += csv
+
+            f = open(dir, "a")
 
             now = time.gmtime(time.time())
 
@@ -324,8 +325,9 @@ def kw(master_serial):
                     "hour": now.tm_hour + 9, "minute": now.tm_min, "second": now.tm_sec,
                     "slave_RXAddr": slave.RXAddr, "power": data_dict[slave.RXAddr]}
 
-            f.write(str(now.tm_hour+9) + ' ' + str(now.tm_min) + ' ' + str(now.tm_sec) + ' ')
-            f.write(str(data_dict[slave.RXAddr]) + '\n')
+            f.write(str(now.tm_year) + '.' + str(now.tm_mon) + '.' + str(now.tm_mday) + '|')
+            f.write(str(now.tm_hour+9) + '|' + str(now.tm_min) + '|' + str(now.tm_sec) + '|')
+            f.write(str(data["power"]) + '\n')
 
             f.close()
 
