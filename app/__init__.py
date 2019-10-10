@@ -40,6 +40,7 @@ from app.models.device import Master, Slave
 @app.route('/')
 def index():
     masters = Master.query.all()
+    slaves_list = []
 
     if len(masters) is 0:
         return render_template('device/master_enroll_check.html')
@@ -83,4 +84,6 @@ def index():
 
             slave.graph_url = graph_url
 
-    return render_template('index.html', slaves=slaves)
+            slaves_list.append(slave)
+
+    return render_template('index.html', slaves=slaves_list)
