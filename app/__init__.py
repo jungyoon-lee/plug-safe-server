@@ -6,10 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from graph import build_graph
-from config import CONNECT_STRING
 
-import matplotlib.pyplot as plt
-from io import BytesIO, StringIO
+from config import CONNECT_STRING
 
 app = Flask(__name__)
 
@@ -43,8 +41,14 @@ from app.models.device import Master, Slave
 def index():
     masters = Master.query.all()
 
+    if len(masters) is 0:
+        return render_template('device/master_enroll_check.html')
+
     for master in masters:
         slaves = Slave.query.filter_by(master_id=master.id).all()
+
+        if len(slaves) is 0:
+            return render_template('device/master_enroll_check.html')
 
         for slave in slaves:
             graph_url_list = []
@@ -60,11 +64,7 @@ def index():
             texts = f.readlines()
             f.close()
 
-            res_text = []
             text_list = []
-            # for text in texts:
-            #     text = text.replace('\n', '')
-            #     res_text.append(text)
 
             for text in texts:
                 text = text.replace('\n', '')
@@ -78,17 +78,9 @@ def index():
                 x.append(int(text[4]))
                 y.append(int(text[1]) * 3600 + int(text[2]) * 60 + int(text[3]))
 
-            print(x)
-            print(y)
-
             graph_url = build_graph(y, x)
             graph_url_list.append(graph_url)
 
             slave.graph_url = graph_url
 
-    return render_template('index.html', masters=masters, slaves=slaves)
-    # return render_template('index.html')
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
+    return render_template('index.html', slaves=slaves)

@@ -8,16 +8,17 @@
 <div class="pusher">
     <div class="ui three stackable cards">
       {% for slave in slaves %}
-      <div class="card">
-        <div class="image">
-          <img src="{{ slave.graph_url }}">
+        <h1 class="ui header"></h1>
+        <div class="card">
+          <div class="image">
+            <img src="{{ slave.graph_url }}">
+          </div>
+          <div class="content">
+            <a class="header" href="{{ url_for('master_control', master_id=slave.master_id) }}">{{ slave.name }}</a>
+            <a class="header" href="{{ url_for('master_control', master_id=slave.master_id) }}">{{ slave.RXAddr }}</a>
+          </div>
         </div>
-        <div class="content">
-          <a class="header">{{ slave.name }}</a>
-          <a class="header">{{ slave.RXAddr }}</a>
-        </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
